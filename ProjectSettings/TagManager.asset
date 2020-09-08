@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - BlockTag
+  - NextBlockTag
+  - StartBlockTag
+  - WrongBlockTag
   layers:
   - Default
   - TransparentFX
