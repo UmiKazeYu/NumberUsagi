@@ -1,24 +1,33 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UsagiController : MonoBehaviour
+public class UsagiControllerLevel3 : MonoBehaviour
 {
     private Rigidbody2D myRigidbody2D;
     private Animator animator;
-    private float velocityX = 18.0f;
-    private float velocityY = 22.0f;
+    private float velocityX = 20.0f;
+    private float velocityY = 25.0f;
     int touchedBlockNumber = -1;
     public GameObject startBlock;
     private GameObject nextBlock;
     public Text gameStateText;
+    string startText = "1番からスタート！";
+    bool gameOver = false;
+    AudioSource audioSource;
+    public AudioClip okay;
+    public AudioClip clear;
+    public AudioClip over;
 
     // Start is called before the first frame update
     void Start()
     {
         this.myRigidbody2D = GetComponent<Rigidbody2D>();
         this.animator = GetComponent<Animator>();
+        gameStateText.text = startText;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -49,6 +58,10 @@ public class UsagiController : MonoBehaviour
             GetComponent<Animator>().SetBool("walkBool", true);
             this.gameObject.transform.localScale = new Vector2(-2, 2);
             startBlock.tag = "WrongBlockTag";
+            if (gameStateText.text == startText)
+            {
+                gameStateText.text = "";
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.LeftArrow))
@@ -61,6 +74,13 @@ public class UsagiController : MonoBehaviour
         }
 
         this.myRigidbody2D.velocity = new Vector2(inputVelocityX, this.myRigidbody2D.velocity.y);
+
+        this.myRigidbody2D.velocity = new Vector2(inputVelocityX, this.myRigidbody2D.velocity.y);
+
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)) && gameOver)
+        {
+            SceneManager.LoadScene("Title");
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -74,6 +94,7 @@ public class UsagiController : MonoBehaviour
         {
             this.myRigidbody2D.velocity = new Vector2(this.myRigidbody2D.velocity.x, velocityY);
             animator.SetTrigger("jumpTrigger");
+            GetComponent<ParticleSystem>().Play();
 
             // 数字を取得
             touchedBlockNumber = int.Parse(collision.gameObject.transform.GetChild(0).GetChild(1).GetComponent<Text>().text);
@@ -84,6 +105,7 @@ public class UsagiController : MonoBehaviour
                 nextBlock.tag = "NextBlockTag";
                 Debug.Log(touchedBlockNumber);
                 collision.gameObject.tag = "WrongBlockTag";
+                audioSource.PlayOneShot(okay, 0.5f);
             }
             else
             {
@@ -125,6 +147,8 @@ public class UsagiController : MonoBehaviour
         velocityX = 0;
         this.myRigidbody2D.velocity = new Vector2(0, 0);
         gameStateText.text = "しっぱい…";
+        gameOver = true;
+        audioSource.PlayOneShot(over, 0.5f);
     }
 
     void Complete()
@@ -133,5 +157,7 @@ public class UsagiController : MonoBehaviour
         velocityX = 0;
         this.myRigidbody2D.velocity = new Vector2(0, 0);
         gameStateText.text = "おめでとう！";
+        gameOver = true;
+        audioSource.PlayOneShot(clear, 0.5f);
     }
 }

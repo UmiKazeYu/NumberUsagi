@@ -35,6 +35,7 @@ public class BlockGenerator : MonoBehaviour
             GameObject myBlock = Instantiate(block, blockPosition, Quaternion.identity);
             GameObject myCanvas = Instantiate(canvas, this.transform.position, Quaternion.identity, myBlock.transform);
             GameObject myText = Instantiate(numberText, textPosition, Quaternion.identity, myCanvas.transform);
+
             myText.GetComponent<Text>().text = random.ToString();
 
             myBlock.gameObject.name = "Block" + random;
