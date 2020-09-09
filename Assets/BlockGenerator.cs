@@ -12,7 +12,7 @@ public class BlockGenerator : MonoBehaviour
     int end = 10;
     float interval = 1.4f;
     Vector2 blockPosition = new Vector2(-6.0f, -4.5f);
-    Vector2 textPosition = new Vector2(230, 33);
+    Vector2 textPosition = new Vector2(-248, -236);
 
     List<int> numbers = new List<int>();
 
@@ -34,7 +34,8 @@ public class BlockGenerator : MonoBehaviour
 
             GameObject myBlock = Instantiate(block, blockPosition, Quaternion.identity);
             GameObject myCanvas = Instantiate(canvas, this.transform.position, Quaternion.identity, myBlock.transform);
-            GameObject myText = Instantiate(numberText, textPosition, Quaternion.identity, myCanvas.transform);
+            GameObject myText = Instantiate(numberText, this.transform.position, Quaternion.identity, myCanvas.transform);
+            myText.GetComponent<RectTransform>().anchoredPosition = textPosition;
 
             myText.GetComponent<Text>().text = random.ToString();
 

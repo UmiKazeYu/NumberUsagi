@@ -12,7 +12,6 @@ public class SceneSelector : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        Screen.SetResolution(956, 538, false, 60);
     }
 
     // Update is called once per frame
