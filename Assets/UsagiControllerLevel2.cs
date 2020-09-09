@@ -20,6 +20,9 @@ public class UsagiControllerLevel2 : MonoBehaviour
     public AudioClip okay;
     public AudioClip clear;
     public AudioClip over;
+    int screenWidthHalf = Screen.width / 2;
+    public int leftSideFingerId = 0;
+    public int rightSideFingerId = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -46,13 +49,14 @@ public class UsagiControllerLevel2 : MonoBehaviour
         //    inputVelocityY = this.myRigidbody2D.velocity.y;
         //}
 
-        if (Input.GetKey(KeyCode.LeftArrow) && this.transform.position.x > -8.3f)
+        // キーボード・マウス入力
+        if ((Input.GetKey(KeyCode.LeftArrow) || (Input.GetMouseButton(0) && Input.mousePosition.x <= screenWidthHalf)) && this.transform.position.x > -8.3f)
         {
             inputVelocityX = -velocityX;
             GetComponent<Animator>().SetBool("walkBool", true);
             this.gameObject.transform.localScale = new Vector2(2, 2);
         }
-        if (Input.GetKey(KeyCode.RightArrow) && this.transform.position.x < 8.3f)
+        if ((Input.GetKey(KeyCode.RightArrow) || (Input.GetMouseButton(0) && Input.mousePosition.x > screenWidthHalf)) && this.transform.position.x < 8.3f)
         {
             inputVelocityX = velocityX;
             GetComponent<Animator>().SetBool("walkBool", true);
@@ -64,22 +68,52 @@ public class UsagiControllerLevel2 : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftArrow))
-        {
-            GetComponent<Animator>().SetBool("walkBool", false);
-        }
-        if (Input.GetKeyUp(KeyCode.RightArrow))
+        if (Input.GetKeyUp(KeyCode.LeftArrow) || Input.GetKeyUp(KeyCode.RightArrow) || Input.GetMouseButtonUp(0))
         {
             GetComponent<Animator>().SetBool("walkBool", false);
         }
 
-        this.myRigidbody2D.velocity = new Vector2(inputVelocityX, this.myRigidbody2D.velocity.y);
+        // タッチ入力
+        foreach (Touch touch in Input.touches)
+        {
+            if ((touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved) && touch.position.x <= screenWidthHalf && this.transform.position.x > -8.3f)
+            {
+                inputVelocityX = -velocityX;
+                GetComponent<Animator>().SetBool("walkBool", true);
+                this.gameObject.transform.localScale = new Vector2(2, 2);
+                leftSideFingerId = touch.fingerId;
+            }
+            else if ((touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved) && touch.position.x > screenWidthHalf && this.transform.position.x < 8.3f)
+            {
+                inputVelocityX = velocityX;
+                GetComponent<Animator>().SetBool("walkBool", true);
+                this.gameObject.transform.localScale = new Vector2(-2, 2);
+                startBlock.tag = "WrongBlockTag";
+                rightSideFingerId = touch.fingerId;
+                if (gameStateText.text == startText)
+                {
+                    gameStateText.text = "";
+                }
+            }
+            else if (touch.phase == TouchPhase.Ended && leftSideFingerId == touch.fingerId)
+            {
+                GetComponent<Animator>().SetBool("walkBool", false);
+            }
+            else if (touch.phase == TouchPhase.Ended && rightSideFingerId == touch.fingerId)
+            {
+                GetComponent<Animator>().SetBool("walkBool", false);
+            }
+            else if (touch.phase == TouchPhase.Began && gameOver)
+            {
+                SceneManager.LoadScene("TitleScene");
+            }
+        }
 
         this.myRigidbody2D.velocity = new Vector2(inputVelocityX, this.myRigidbody2D.velocity.y);
 
         if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)) && gameOver)
         {
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("TitleScene");
         }
     }
 
@@ -97,7 +131,7 @@ public class UsagiControllerLevel2 : MonoBehaviour
             GetComponent<ParticleSystem>().Play();
 
             // 数字を取得
-            touchedBlockNumber = int.Parse(collision.gameObject.transform.GetChild(0).GetChild(1).GetComponent<Text>().text);
+            touchedBlockNumber = int.Parse(collision.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Text>().text);
             // 次のブロックを変更
             if (touchedBlockNumber < 10)
             {
@@ -146,7 +180,7 @@ public class UsagiControllerLevel2 : MonoBehaviour
         Debug.Log("ざんねん");
         velocityX = 0;
         this.myRigidbody2D.velocity = new Vector2(0, 0);
-        gameStateText.text = "しっぱい…";
+        gameStateText.text = "しっぱい…<size=20>[Enter]</size>";
         gameOver = true;
         audioSource.PlayOneShot(over, 0.5f);
     }
@@ -156,7 +190,7 @@ public class UsagiControllerLevel2 : MonoBehaviour
         Debug.Log("おめでとう！");
         velocityX = 0;
         this.myRigidbody2D.velocity = new Vector2(0, 0);
-        gameStateText.text = "おめでとう！";
+        gameStateText.text = "おめでとう！<size=20>[Enter]</size>";
         gameOver = true;
         audioSource.PlayOneShot(clear, 0.5f);
     }

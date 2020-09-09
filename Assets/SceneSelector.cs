@@ -12,6 +12,7 @@ public class SceneSelector : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        Screen.SetResolution(956, 538, false, 60);
     }
 
     // Update is called once per frame
@@ -28,6 +29,14 @@ public class SceneSelector : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             GetLevel3ButtonDown();
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            GetHelpButtonDown();
+        }
+        else if (Input.GetKeyDown(KeyCode.Return))
+        {
+            GetBackButtonDown();
         }
     }
 
@@ -47,5 +56,17 @@ public class SceneSelector : MonoBehaviour
     {
         audioSource.PlayOneShot(selected, 0.5f);
         SceneManager.LoadScene("Level3Scene");
+    }
+
+    public void GetHelpButtonDown()
+    {
+        audioSource.PlayOneShot(selected, 0.5f);
+        SceneManager.LoadScene("DescriptionScene");
+    }
+
+    public void GetBackButtonDown()
+    {
+        audioSource.PlayOneShot(selected, 0.5f);
+        SceneManager.LoadScene("TitleScene");
     }
 }
